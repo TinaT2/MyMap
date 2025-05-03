@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "22358207702",
+    "project_id": "mymap-f8ce9",
+    "storage_bucket": "mymap-f8ce9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:22358207702:android:6184729ec9183688ecad77",
+        "android_client_info": {
+          "package_name": "com.example.mymap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHKhCjdGTRV9xF8J0gorHF_uGchrRDQD8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
