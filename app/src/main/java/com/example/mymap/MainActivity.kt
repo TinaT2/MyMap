@@ -1,5 +1,6 @@
 package com.example.mymap
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.mymap.ui.theme.MyMapTheme
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.TileOverlayOptions
@@ -24,10 +26,14 @@ import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.rememberCameraPositionState
+import org.maplibre.android.module.http.HttpRequestUtil
+
 
 class MainActivity : ComponentActivity() {
     val accessToken =
         "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImRlOGM1Mzk2ODBkMTE4MjU1ZGRjNjM1NWUxNmZkNWZlN2RmYjZkYzNhNzUyMDQzMTkzMDlkYjgyM2YyNzc2YTk2ZTA5NWM4OWY5YTQwZDcyIn0.eyJhdWQiOiIzMjI4MiIsImp0aSI6ImRlOGM1Mzk2ODBkMTE4MjU1ZGRjNjM1NWUxNmZkNWZlN2RmYjZkYzNhNzUyMDQzMTkzMDlkYjgyM2YyNzc2YTk2ZTA5NWM4OWY5YTQwZDcyIiwiaWF0IjoxNzQ2MjY0MzY3LCJuYmYiOjE3NDYyNjQzNjcsImV4cCI6MTc0ODg1NjM2Nywic3ViIjoiIiwic2NvcGVzIjpbImJhc2ljIl19.SUI9gVEGM4sKFmtojwf9xSZMK2uaKT-6B_gKqEOj4UgZny6aZIQaC2v7mTA5f9Fz62V4kE1rJ5fu4-rJH9LbcntgQ_gFXrdr1oBMJaeFCF6065wWbw5vLp_rVFjOFQvHEnyB5pvjG6PREEtD_VVlQbDCPzxYtDbBrrp5mQknk0CrCiUk5kaqbqbOaCwtXy_Ss3BHeQwRk2FUyfhCeH-EAb-abW_mFRDRra8WzVWxBvl3EH51L_t4_LPYve1Epflo2CDpGg44Jm-8Kg4ImZzXDVNIIyBHZMiUQxlT9cNFurQfrYlQki_8lKl-qkHEoglMcEhvMvUVJUB1a0-SSm6Tlw"
+    private var map: MapboxMap? = null
+    private val apiKey = BuildConfig.MAP_IR_API_KEY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,10 +89,26 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+
     }
 
     fun getMockMapIrPolyline(): String {
         return "yzocFzynhVq}@n}@o}@nzD" // Replace with API call
+    }
+
+    private fun init(mapView: MapView?, style: String? = MapirStyle.VERNA, context: Context?, apiKey: String?) {
+        HttpRequestUtil.setOkHttpClient(NetworkUtils(context!!).getOkHttpClient(apiKey))
+        mapView!!.getMapAsync { mapboxMap ->
+            map = mapboxMap
+            map!!.uiSettings.setLogoMargins(10000, 0, 0, 0)
+            map!!.uiSettings.setAttributionMargins(10000, 0, 0, 0)
+            mapboxMap.setStyle(Style.Builder().fromUri(style!!))
+            val cameraPosition: CameraPosition = Builder()
+                .target(LatLng(35.690975, 51.433868))
+                .zoom(6.0)
+                .build()
+            mapboxMap.cameraPosition = cameraPosition
+        }
     }
 
 
