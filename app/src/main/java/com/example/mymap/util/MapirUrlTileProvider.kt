@@ -1,4 +1,4 @@
-package com.example.mymap
+package com.example.mymap.util
 
 import com.google.android.gms.maps.model.UrlTileProvider
 import java.net.MalformedURLException

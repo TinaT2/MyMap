@@ -1,39 +1,47 @@
-package com.example.mymap
+package com.example.mymap.ui.main
 
-import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.mymap.BuildConfig
 import com.example.mymap.ui.theme.MyMapTheme
+import com.example.mymap.util.MapirUrlTileProvider
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapsComposeExperimentalApi
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import org.maplibre.android.module.http.HttpRequestUtil
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    val accessToken =
-        "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImRlOGM1Mzk2ODBkMTE4MjU1ZGRjNjM1NWUxNmZkNWZlN2RmYjZkYzNhNzUyMDQzMTkzMDlkYjgyM2YyNzc2YTk2ZTA5NWM4OWY5YTQwZDcyIn0.eyJhdWQiOiIzMjI4MiIsImp0aSI6ImRlOGM1Mzk2ODBkMTE4MjU1ZGRjNjM1NWUxNmZkNWZlN2RmYjZkYzNhNzUyMDQzMTkzMDlkYjgyM2YyNzc2YTk2ZTA5NWM4OWY5YTQwZDcyIiwiaWF0IjoxNzQ2MjY0MzY3LCJuYmYiOjE3NDYyNjQzNjcsImV4cCI6MTc0ODg1NjM2Nywic3ViIjoiIiwic2NvcGVzIjpbImJhc2ljIl19.SUI9gVEGM4sKFmtojwf9xSZMK2uaKT-6B_gKqEOj4UgZny6aZIQaC2v7mTA5f9Fz62V4kE1rJ5fu4-rJH9LbcntgQ_gFXrdr1oBMJaeFCF6065wWbw5vLp_rVFjOFQvHEnyB5pvjG6PREEtD_VVlQbDCPzxYtDbBrrp5mQknk0CrCiUk5kaqbqbOaCwtXy_Ss3BHeQwRk2FUyfhCeH-EAb-abW_mFRDRra8WzVWxBvl3EH51L_t4_LPYve1Epflo2CDpGg44Jm-8Kg4ImZzXDVNIIyBHZMiUQxlT9cNFurQfrYlQki_8lKl-qkHEoglMcEhvMvUVJUB1a0-SSm6Tlw"
-    private var map: MapboxMap? = null
-    private val apiKey = BuildConfig.MAP_IR_API_KEY
+    val accessToken = BuildConfig.MAP_IR_API_KEY
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,13 +61,16 @@ class MainActivity : ComponentActivity() {
 
     @OptIn(MapsComposeExperimentalApi::class)
     @Composable
-    fun MyMapRouteScreen() {
-        val context = LocalContext.current
+    fun MyMapRouteScreen(hiltViewModel: MainViewModel = hiltViewModel<MainViewModel>()) {
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(LatLng(35.6892, 51.3890), 12f) // Tehran
         }
 
-        val polylinePoints = remember { mutableStateListOf<LatLng>() }
+        var polylinePoints = remember { mutableStateListOf<LatLng>() }
+
+        var clickablePositionOne by remember { mutableStateOf<LatLng?>(null) }
+        var clickablePositionTwo by remember { mutableStateOf<LatLng?>(null) }
+
 
         // Call route API and decode polyline
         LaunchedEffect(Unit) {
@@ -68,47 +79,75 @@ class MainActivity : ComponentActivity() {
             polylinePoints.addAll(decodePolyline(encoded))
         }
 
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState
-        ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+
+
+            if (clickablePositionOne != null && clickablePositionTwo != null) {
+                Button(modifier = Modifier.align(Alignment.BottomStart).size(100.dp).zIndex(10f), onClick = {
+                    hiltViewModel.getRouting(clickablePositionOne!! to clickablePositionTwo!!)
+                }) {
+                    Text(text = "Routing")
+                }
+            }
+
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState,
+                onMapLongClick = { latLng ->
+                    if (clickablePositionOne == null)
+                        clickablePositionOne = latLng
+                    else if (clickablePositionTwo == null)
+                        clickablePositionTwo = latLng
+                    else {
+                        clickablePositionOne = latLng
+                        clickablePositionTwo = null
+                    }
+                },
+                onMapClick = {
+                    clickablePositionOne = null
+                    clickablePositionTwo = null
+                }
+            ) {
 //        Polyline(
 //            points = polylinePoints,
 //            color = Color.Blue,
 //            width = 8f
 //        )
-            MapEffect { map ->
-                // Set map type to none to remove default tiles
-                map.mapType = GoogleMap.MAP_TYPE_NONE
 
-                // Add Map.ir tile overlay
-                map.addTileOverlay(
-                    TileOverlayOptions().tileProvider(
-                        MapirUrlTileProvider(accessToken)
+                clickablePositionOne?.let {
+                    Marker(
+                        state = MarkerState(position = it),
+                        title = "Start Point",
+                        snippet = "From here"
                     )
-                )
-            }
-        }
+                }
 
+                clickablePositionTwo?.let {
+                    Marker(
+                        state = MarkerState(position = it),
+                        title = "End Point",
+                        snippet = "To Here"
+                    )
+                }
+
+                MapEffect { map ->
+                    // Set map type to none to remove default tiles
+                    map.mapType = GoogleMap.MAP_TYPE_NONE
+
+                    // Add Map.ir tile overlay
+                    map.addTileOverlay(
+                        TileOverlayOptions().tileProvider(
+                            MapirUrlTileProvider(accessToken)
+                        )
+                    )
+                }
+            }
+
+        }
     }
 
     fun getMockMapIrPolyline(): String {
         return "yzocFzynhVq}@n}@o}@nzD" // Replace with API call
-    }
-
-    private fun init(mapView: MapView?, style: String? = MapirStyle.VERNA, context: Context?, apiKey: String?) {
-        HttpRequestUtil.setOkHttpClient(NetworkUtils(context!!).getOkHttpClient(apiKey))
-        mapView!!.getMapAsync { mapboxMap ->
-            map = mapboxMap
-            map!!.uiSettings.setLogoMargins(10000, 0, 0, 0)
-            map!!.uiSettings.setAttributionMargins(10000, 0, 0, 0)
-            mapboxMap.setStyle(Style.Builder().fromUri(style!!))
-            val cameraPosition: CameraPosition = Builder()
-                .target(LatLng(35.690975, 51.433868))
-                .zoom(6.0)
-                .build()
-            mapboxMap.cameraPosition = cameraPosition
-        }
     }
 
 

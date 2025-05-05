@@ -1,4 +1,4 @@
-package com.example.mymap
+package com.example.mymap.util
 
 import android.content.Context
 import android.os.Build
