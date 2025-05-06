@@ -12,7 +12,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -26,11 +25,8 @@ import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.mymap.BuildConfig
 import com.example.mymap.ui.theme.MyMapTheme
-import com.example.mymap.util.MapirUrlTileProvider
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.TileOverlayOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapsComposeExperimentalApi
@@ -73,19 +69,24 @@ class MainActivity : ComponentActivity() {
 
 
         // Call route API and decode polyline
-        LaunchedEffect(Unit) {
-            val encoded = getMockMapIrPolyline() // Replace with real API call
-            polylinePoints.clear()
-            polylinePoints.addAll(decodePolyline(encoded))
-        }
+//        LaunchedEffect(Unit) {
+//            val encoded = getMockMapIrPolyline() // Replace with real API call
+//            polylinePoints.clear()
+//            polylinePoints.addAll(decodePolyline(encoded))
+//        }
 
         Box(modifier = Modifier.fillMaxSize()) {
 
 
             if (clickablePositionOne != null && clickablePositionTwo != null) {
-                Button(modifier = Modifier.align(Alignment.BottomStart).size(100.dp).zIndex(10f), onClick = {
-                    hiltViewModel.getRouting(clickablePositionOne!! to clickablePositionTwo!!)
-                }) {
+                Button(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .size(100.dp)
+                        .zIndex(10f),
+                    onClick = {
+                        hiltViewModel.getRouting(clickablePositionOne!! to clickablePositionTwo!!)
+                    }) {
                     Text(text = "Routing")
                 }
             }
@@ -132,14 +133,15 @@ class MainActivity : ComponentActivity() {
 
                 MapEffect { map ->
                     // Set map type to none to remove default tiles
-                    map.mapType = GoogleMap.MAP_TYPE_NONE
-
-                    // Add Map.ir tile overlay
-                    map.addTileOverlay(
-                        TileOverlayOptions().tileProvider(
-                            MapirUrlTileProvider(accessToken)
-                        )
-                    )
+//todo make it back to business finally
+// map.mapType = GoogleMap.MAP_TYPE_NONE
+//
+//                    // Add Map.ir tile overlay
+//                    map.addTileOverlay(
+//                        TileOverlayOptions().tileProvider(
+//                            MapirUrlTileProvider(accessToken)
+//                        )
+//                    )
                 }
             }
 

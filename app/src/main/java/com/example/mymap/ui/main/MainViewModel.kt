@@ -32,11 +32,16 @@ class MainViewModel @Inject constructor(private val routingRepository: RoutingRe
 
     fun getRouting(latLng: Pair<LatLng, LatLng>) {
         viewModelScope.launch {
-            val coordinates =
-                latLng.first.latitude.toString() + "," + latLng.first.longitude + ";" + latLng.second.latitude + "," + latLng.second.longitude
-            val response = routingRepository.getRout(coordinates)
-            Log.d("response", response.toString())
-            _uiState.routeDto = response
+            try {
+                val coordinates =
+                    latLng.first.longitude.toString() + "," + latLng.first.latitude + ";" + latLng.second.longitude + "," + latLng.second.latitude
+                Log.d("getRouting coordinates", coordinates)
+                val response = routingRepository.getRout(coordinates)
+                Log.d("getRouting response", response.toString())
+                _uiState.routeDto = response
+            }catch (exception: Exception){
+                Log.e("getRouting error", exception.message.toString())
+            }
         }
     }
 }
