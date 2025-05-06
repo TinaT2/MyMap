@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.androidx.fragment.compose)
     implementation(libs.google.maps.compose)
     implementation(libs.google.maps.sdk)
+    implementation (libs.google.maps.compose.util)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.retrofit)

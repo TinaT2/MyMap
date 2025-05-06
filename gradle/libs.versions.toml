@@ -16,7 +16,7 @@ navigation = "2.8.9"
 lifecycle = "2.8.7"
 fragment_version = "1.8.6"
 retrofit = "2.9.0"
-gson = "2.10.1"
+mapCompose = "6.6.0"
 
 [libraries]
 androidx-fragment-compose = { module = "androidx.fragment:fragment-compose", version.ref = "fragment_version" }
@@ -47,11 +47,11 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.r
 hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
-gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 
 mapir-sdk = { module = "org.maplibre.gl:android-sdk", version.ref = "mapIr" }
-google-maps-compose = { group = "com.google.maps.android", name = "maps-compose", version = "2.11.2" }
+google-maps-compose = { group = "com.google.maps.android", name = "maps-compose", version.ref = "mapCompose" }
+google-maps-compose-util = { group = "com.google.maps.android", name = "maps-compose-utils", version.ref = "mapCompose" }
 google-maps-sdk = { group = "com.google.android.gms", name = "play-services-maps", version = "19.2.0" }
 
 [plugins]

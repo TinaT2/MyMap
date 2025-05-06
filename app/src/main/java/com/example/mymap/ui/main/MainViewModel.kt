@@ -44,4 +44,8 @@ class MainViewModel @Inject constructor(private val routingRepository: RoutingRe
             }
         }
     }
+
+    fun clearRouteDto(){
+        _uiState.routeDto = null
+    }
 }
