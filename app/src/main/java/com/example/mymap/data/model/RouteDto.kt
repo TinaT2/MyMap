@@ -14,7 +14,9 @@ data class Route(
 
 data class Leg(
     val steps: List<Step>,
-    val summary: String
+    val summary: String,
+    val distance: Double,
+    val duration: Double,
 )
 
 data class Step(

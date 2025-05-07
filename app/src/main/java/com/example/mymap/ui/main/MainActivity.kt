@@ -4,10 +4,20 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -19,11 +29,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.mymap.BuildConfig
+import com.example.mymap.R
+import com.example.mymap.data.model.Leg
 import com.example.mymap.ui.theme.MyMapTheme
 import com.example.mymap.util.LatLngUtil.decodeRouteToLatLng
 import com.google.android.gms.maps.model.CameraPosition
@@ -35,11 +47,10 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    val accessToken = BuildConfig.MAP_IR_API_KEY
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -67,17 +78,14 @@ class MainActivity : ComponentActivity() {
 
         Box(modifier = Modifier.fillMaxSize()) {
 
-
-            if (clickablePositionOne != null && clickablePositionTwo != null) {
-                Button(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .size(100.dp)
-                        .zIndex(10f),
-                    onClick = {
-                        mainViewModel.getRouting(clickablePositionOne!! to clickablePositionTwo!!)
-                    }) {
-                    Text(text = "Routing")
+            mainViewModel.uiState.routeDto?.apply {
+                ButtonPanel(
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    leg = routes.first().legs.first()
+                ) {
+                    clickablePositionOne = null
+                    clickablePositionTwo = null
+                    mainViewModel.clearRouteDto()
                 }
             }
 
@@ -87,9 +95,10 @@ class MainActivity : ComponentActivity() {
                 onMapLongClick = { latLng ->
                     if (clickablePositionOne == null)
                         clickablePositionOne = latLng
-                    else if (clickablePositionTwo == null)
+                    else if (clickablePositionTwo == null) {
                         clickablePositionTwo = latLng
-                    else {
+                        mainViewModel.getRouting(clickablePositionOne!! to clickablePositionTwo!!)
+                    } else {
                         clickablePositionOne = latLng
                         clickablePositionTwo = null
                     }
@@ -100,15 +109,14 @@ class MainActivity : ComponentActivity() {
                     mainViewModel.clearRouteDto()
                 }
             ) {
-                mainViewModel.uiState.routeDto?.let{
-                   val polylinePoints = decodeRouteToLatLng(it)
+                mainViewModel.uiState.routeDto?.let {
+                    val polylinePoints = decodeRouteToLatLng(it)
                     Polyline(
                         points = polylinePoints,
                         color = Color.Blue,
-                        width = 8f
+                        width = 16f,
                     )
                 }
-
 
                 clickablePositionOne?.let {
                     Marker(
@@ -139,6 +147,53 @@ class MainActivity : ComponentActivity() {
 //                    )
                 }
             }
+
+        }
+    }
+
+    @Composable
+    fun ButtonPanel(modifier: Modifier, leg: Leg, onRoutingClicked: () -> Unit) {
+        Column(
+            modifier = modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .background(color = Color.White)
+                .padding(16.dp)
+                .zIndex(10f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.Start)
+            ) {
+                Text(text = leg.summary, modifier = Modifier.padding(8.dp))
+                Row {
+                    Text(
+                        text = "${"%.1f".format(leg.distance / 1000)} ${stringResource(R.string.kilometer)}",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .heightIn(min = 16.dp, max = 20.dp)
+                            .width(1.dp)
+                            .background(color = Color.LightGray)
+                            .padding(horizontal = 8.dp)
+                    )
+                    Text(
+                        text = "${(leg.duration / 60).roundToInt()}  ${stringResource(R.string.minutes)}",
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
+                }
+            }
+
+            Button(
+                modifier = Modifier.align(Alignment.End),
+                onClick = {
+                    onRoutingClicked()
+                }) {
+                Text(text = "Routing")
+            }
+
 
         }
     }
