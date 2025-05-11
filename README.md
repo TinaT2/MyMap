@@ -27,7 +27,7 @@ MyMap is a lightweight Android app built with Jetpack Compose and Google Maps. I
 
 📸 Preview
 
-<img src="https://github.com/user-attachments/assets/a44c2aa2-d8f5-4261-a32d-5b0e33161de9" alt="Preview" width="300"/>
+<img src="https://github.com/user-attachments/assets/a42e0563-b15a-4612-9b53-85298a3b3d7f" alt="Preview" width="300"/>
 
 
 
@@ -56,7 +56,6 @@ private class MutableRoutUiState : RoutUiState {
 
 🛣️ TODO
 
-- [ ] Support multi-leg routes
 - [ ] Add user location tracking
 - [ ] Animate camera along the route
 - [ ] Offline map caching
