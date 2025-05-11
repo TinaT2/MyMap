@@ -10,7 +10,8 @@ interface ApiInterfaceMapIr {
     @HTTP(method = "GET", path = "route/v1/driving/{coordinates}")
     suspend fun getRoute(
         @Path("coordinates") coordinates: String,
-        @Query("steps") steps: String = "true"
-    ): RouteDto
+        @Query("steps") steps: String = "true",
+        @Query("alternatives") alternatives: String = "true",
+    ):RouteDto
 
 }

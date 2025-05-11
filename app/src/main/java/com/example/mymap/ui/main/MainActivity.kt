@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +15,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,10 +55,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             MyMapTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
                     MyMapRouteScreen()
                 }
             }
@@ -81,7 +75,7 @@ class MainActivity : ComponentActivity() {
             mainViewModel.uiState.routeDto?.apply {
                 ButtonPanel(
                     modifier = Modifier.align(Alignment.BottomCenter),
-                    leg = routes.first().legs.first()
+                    leg = routes.minBy { it.distance }.legs.first()
                 ) {
                     clickablePositionOne = null
                     clickablePositionTwo = null
@@ -110,9 +104,19 @@ class MainActivity : ComponentActivity() {
                 }
             ) {
                 mainViewModel.uiState.routeDto?.let {
-                    val polylinePoints = decodeRouteToLatLng(it)
+                    val routes = decodeRouteToLatLng(it)
+                    val fastest = routes.minBy { it.first.distance }
+                    routes.filter { it.first.distance!= fastest.first.distance}.forEach {
+                        Polyline(
+                            points = it.second,
+                            color = MaterialTheme.colorScheme.primary,
+                            width = 16f,
+                        )
+                    }
+
+
                     Polyline(
-                        points = polylinePoints,
+                        points = fastest.second,
                         color = Color.Blue,
                         width = 16f,
                     )
